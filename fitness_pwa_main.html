@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2196F3">
+    <title>5:45am Fitness Tracker</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="5:45am Fitness">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .current-week {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        
+        .current-week h2 {
+            color: #1976d2;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .week-info {
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .daily-checkin {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .daily-checkin h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .checkin-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #ddd;
+            transition: all 0.3s ease;
+        }
+        
+        .checkin-item.completed {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+        
+        .checkin-text {
+            flex-grow: 1;
+        }
+        
+        .checkin-title {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .checkin-detail {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .checkin-checkbox {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .checkin-checkbox.completed {
+            background: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+        
+        .progress-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #28a745, #20c997);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .weather-alert {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .weather-alert.show {
+            display: block;
+        }
+        
+        .weather-alert h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .backup-plan {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .navigation {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .nav-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .nav-btn {
+            background: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 8px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .nav-btn:hover {
+            background: #1976d2;
+        }
+        
+        .nav-btn.active {
+            background: #28a745;
+        }
+        
+        .content-section {
+            display: none;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        .time-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .time-input input {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 8px;
+            font-size: 14px;
+        }
+        
+        .energy-slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .install-prompt {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .install-btn {
+            background: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .nav-buttons {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Install Prompt -->
+        <div id="installPrompt" class="install-prompt">
+            <h4>📱 Install 5:45am Fitness Tracker</h4>
+            <p>Add this app to your home screen for the best experience!</p>
+            <button id="installBtn" class="install-btn">Install App</button>
+        </div>
+        
+        <!-- Header -->
+        <div class="header">
+            <h1>🌅 5:45am Fitness Tracker</h1>
+            <p>Transform your morning routine, reduce stress, build habits</p>
+            
+            <div class="current-week">
+                <h2 id="currentWeekTitle">Week 1: Foundation Building</h2>
+                <div class="week-info">
+                    <div><strong>Wake Target:</strong> <span id="wakeTarget">6:05am</span></div>
+                    <div><strong>Focus:</strong> <span id="weekFocus">Establishing the habit</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Weather Alert -->
+        <div id="weatherAlert" class="weather-alert">
+            <h4>🌧️ Irish Weather Backup Plan</h4>
+            <div class="backup-plan" id="backupPlan">
+                Indoor workout recommended: 20-min home HIIT routine or bodyweight exercises
+            </div>
+        </div>
+        
+        <!-- Navigation -->
+        <div class="navigation">
+            <div class="nav-buttons">
+                <button class="nav-btn active" onclick="showSection('checkin')">Daily Check-in</button>
+                <button class="nav-btn" onclick="showSection('progress')">Progress</button>
+                <button class="nav-btn" onclick="showSection('schedule')">Schedule</button>
+            </div>
+        </div>
+        
+        <!-- Daily Check-in Section -->
+        <div id="checkin" class="content-section active">
+            <div class="daily-checkin">
+                <h3>📋 Today's Check-in</h3>
+                <div id="todayDate"></div>
+                
+                <div class="checkin-item" id="wakeup">
+                    <div class="checkin-text">
+                        <div class="checkin-title">🌅 Morning Wake-up</div>
+                        <div class="checkin-detail">Target: <span id="todayWakeTarget">6:05am</span></div>
+                        <div class="time-input">
+                            <label>Actual wake time:</label>
+                            <input type="time" id="actualWakeTime" value="06:05">
+                        </div>
+                    </div>
+                    <div class="checkin-checkbox" onclick="toggleCheckin('wakeup')">
+                        <span>✓</span>
+                    </div>
+                </div>
+                
+                <div class="checkin-item" id="workout">
+                    <div class="checkin-text">
+                        <div class="checkin-title">💪 Workout Completed</div>
+                        <div class="checkin-detail" id="todayWorkout">Upper Body + 20min cardio</div>
+                    </div>
+                    <div class="checkin-checkbox" onclick="toggleCheckin('workout')">
+                        <span>✓</span>
+                    </div>
+                </div>
+                
+                <div class="checkin-item" id="departure">
+                    <div class="checkin-text">
+                        <div class="checkin-title">🚗 On-time Departure</div>
+                        <div class="checkin-detail">Left by 7:50am</div>
+                    </div>
+                    <div class="checkin-checkbox" onclick="toggleCheckin('departure')">
+                        <span>✓</span>
+                    </div>
+                </div>
+                
+                <div class="checkin-item" id="energy">
+                    <div class="checkin-text">
+                        <div class="checkin-title">⚡ Energy Level</div>
+                        <div class="checkin-detail">Rate your energy (1-10)</div>
+                        <input type="range" class="energy-slider" min="1" max="10" value="7" id="energyLevel" onchange="updateEnergyDisplay()">
+                        <div>Energy: <span id="energyDisplay">7</span>/10</div>
+                    </div>
+                    <div class="checkin-checkbox" onclick="toggleCheckin('energy')">
+                        <span>✓</span>
+                    </div>
+                </div>
+                
+                <div class="checkin-item" id="sleep">
+                    <div class="checkin-text">
+                        <div class="checkin-title">😴 Evening Prep</div>
+                        <div class="checkin-detail">9:30pm bedtime, clothes laid out</div>
+                    </div>
+                    <div class="checkin-checkbox" onclick="toggleCheckin('sleep')">
+                        <span>✓</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Progress Section -->
+        <div id="progress" class="content-section">
+            <div class="progress-section">
+                <h3>📊 Your Progress</h3>
+                
+                <div>
+                    <strong>Weekly Consistency</strong>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="weeklyProgress" style="width: 0%">0%</div>
+                    </div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="currentStreak">0</div>
+                        <div class="stat-label">Day Streak</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalWorkouts">0</div>
+                        <div class="stat-label">Total Workouts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="avgEnergy">0</div>
+                        <div class="stat-label">Avg Energy</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="weekNumber">1</div>
+                        <div class="stat-label">Current Week</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <h4>🔥 Achievement Badges</h4>
+                    <div id="badges" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+                        <!-- Badges will be added dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Schedule Section -->
+        <div id="schedule" class="content-section">
+            <div class="daily-checkin">
+                <h3>📅 This Week's Schedule</h3>
+                <div id="weeklySchedule">
+                    <!-- Schedule will be populated dynamically -->
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <h4>🎯 Week Goals</h4>
+                    <div id="weekGoals">
+                        <!-- Goals will be populated dynamically -->
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <h4>🌧️ Weather Backup Plans</h4>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; font-size: 14px;">
+                        <strong>Terrible Weather:</strong> 20-min home HIIT routine<br>
+                        <strong>Low Energy:</strong> 10-min gentle yoga<br>
+                        <strong>Minimum:</strong> 5-min morning movement
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
